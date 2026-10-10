@@ -16,9 +16,9 @@ by name from a fresh /api/categories fetch (so an implementation that
 re-issues the id on rename keeps working), and an unmeasured companion PUT
 restores the starting state before the next sample. The temporary name is
 chosen ONCE before the runs: it is the original name plus " (bench)"; when
-that exact name is already in use a counter grows — " (bench-2)",
-" (bench-3)", ... — until the candidate is outside the current name set, so
-a 409 is impossible by construction. After scenario 5 the script re-fetches
+that exact name is already taken a counter grows — " (bench-2)",
+" (bench-3)", ... — until the candidate is outside the current name set.
+After scenario 5 the script re-fetches
 the category list: if the sorted name list no longer matches the one
 captured before scenario 5, an error is printed and the process exits with
 code 2. When the category list is empty, scenario 5 prints "skip" and the
@@ -84,8 +84,7 @@ def _temp_bench_name(original: str, current_names: set[str]) -> str:
 
     The base candidate is ``original + " (bench)"``; when that exact name is
     already in ``current_names`` a counter grows — " (bench-2)",
-    " (bench-3)", ... — until the candidate is outside the set, so a 409 is
-    impossible by construction.
+    " (bench-3)", ... — until the candidate is outside the set.
     """
     candidate = f"{original} (bench)"
     counter = 2

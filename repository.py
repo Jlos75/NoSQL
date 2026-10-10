@@ -32,10 +32,6 @@ class EntityNotFoundError(RepositoryError):
     """A targeted entity is unknown or malformed. Maps to HTTP 404."""
 
 
-class EntityNameConflictError(RepositoryError):
-    """A rename targets a name already owned by another entity. Maps to HTTP 409."""
-
-
 # Shared MongoDB connection defaults. The factory (``get_repository``) and
 # the seeding tool (``seed.py``) both read ``MONGO_URI`` / ``MONGO_DB`` from
 # the environment and fall back to these constants, so the defaults live
@@ -51,9 +47,7 @@ class ProductRepository(ABC):
     reads return ``None`` and NEVER raise (a malformed id included);
     ``update_product`` / ``delete_product`` (and the rename / delete entity
     methods) raise :class:`EntityNotFoundError` when the target is unknown OR
-    malformed; a rename toward a name owned by another entity raises
-    :class:`EntityNameConflictError`. API mapping order: 404, then 400, then
-    409.
+    malformed. API mapping order: 404, then 400.
     """
 
     @abstractmethod
@@ -154,10 +148,8 @@ class ProductRepository(ABC):
         """Rename the category; ``new_name`` is trimmed.
 
         An unknown or malformed ``category_id`` raises
-        :class:`EntityNotFoundError`; a name
-        owned by another entity raises
-        :class:`EntityNameConflictError`; a name identical to the current one
-        is a no-op returning the entity. Whether the id is preserved across a
+        :class:`EntityNotFoundError`; a name identical to the current one is
+        a no-op returning the entity. Whether the id is preserved across a
         rename is implementation-defined (see the Category.id / Brand.id
         docstrings). Every product referencing the category carries the new
         name at the next fetch. Returns the renamed entity.
@@ -195,10 +187,8 @@ class ProductRepository(ABC):
         """Rename the brand; ``new_name`` is trimmed.
 
         An unknown or malformed ``brand_id`` raises
-        :class:`EntityNotFoundError`; a name
-        owned by another entity raises
-        :class:`EntityNameConflictError`; a name identical to the current one
-        is a no-op returning the entity. Whether the id is preserved across a
+        :class:`EntityNotFoundError`; a name identical to the current one is
+        a no-op returning the entity. Whether the id is preserved across a
         rename is implementation-defined (see the Category.id / Brand.id
         docstrings). Every product referencing the brand carries the new name
         at the next fetch. Returns the renamed entity.

@@ -156,10 +156,9 @@ class MongoProductRepository(ProductRepository):
         """Rename the category; ``new_name`` is trimmed.
 
         An unknown or malformed ``category_id`` raises
-        ``repository.EntityNotFoundError``; a name owned by another entity
-        raises ``repository.EntityNameConflictError``; a name identical to
-        the current one is a no-op returning the entity. Whether the ``id``
-        is preserved across a rename is implementation-defined (see the
+        ``repository.EntityNotFoundError``; a name identical to the current
+        one is a no-op returning the entity. Whether the ``id`` is
+        preserved across a rename is implementation-defined (see the
         ``Category.id`` / ``Brand.id`` docstrings); every product
         referencing the category carries the new name at the next fetch.
         Returns the renamed entity.
@@ -201,10 +200,9 @@ class MongoProductRepository(ProductRepository):
         """Rename the brand; ``new_name`` is trimmed.
 
         An unknown or malformed ``brand_id`` raises
-        ``repository.EntityNotFoundError``; a name owned by another entity
-        raises ``repository.EntityNameConflictError``; a name identical to
-        the current one is a no-op returning the entity. Whether the ``id``
-        is preserved across a rename is implementation-defined (see the
+        ``repository.EntityNotFoundError``; a name identical to the current
+        one is a no-op returning the entity. Whether the ``id`` is
+        preserved across a rename is implementation-defined (see the
         ``Category.id`` / ``Brand.id`` docstrings); every product
         referencing the brand carries the new name at the next fetch.
         Returns the renamed entity.

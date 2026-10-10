@@ -8,7 +8,7 @@ from datetime import datetime
 import pytest
 
 from models import Brand, Category, Product, ProductQuery
-from repository import EntityNameConflictError, EntityNotFoundError
+from repository import EntityNotFoundError
 
 
 def _payload(name: str) -> dict:
@@ -495,13 +495,6 @@ def test_rename_category_unknown_id_raises(repo):
         repo.rename_category("%%%not-a-real-id@@@", "Whatever")
 
 
-def test_rename_category_name_owned_by_another_raises(repo):
-    books = next(c for c in repo.list_categories() if c.name == "Books")
-    assert any(c.name == "Toys" for c in repo.list_categories())  # hand data invariant
-    with pytest.raises(EntityNameConflictError):
-        repo.rename_category(books.id, "Toys")
-
-
 def test_rename_category_snapshot_keeps_the_old_entity(repo):
     # Snapshot semantics: a product snapshot taken BEFORE the rename keeps
     # the old entity; a fresh refetch carries the new name.
@@ -581,8 +574,6 @@ def test_rename_brand_edge_cases(repo):
     assert repo.rename_brand(acme.id, "Acme").name == "Acme"
     with pytest.raises(EntityNotFoundError):
         repo.rename_brand("no-such-id", "X")
-    with pytest.raises(EntityNameConflictError):
-        repo.rename_brand(acme.id, "Globex")  # owned by another brand (hand data)
 
 
 def test_rename_brand_snapshot_keeps_the_old_entity(repo):

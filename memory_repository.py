@@ -19,7 +19,7 @@ import uuid
 from dataclasses import replace
 
 from models import Brand, CatalogStats, Category, CategoryStats, Product, ProductPage, ProductQuery
-from repository import EntityNameConflictError, EntityNotFoundError, ProductRepository
+from repository import EntityNotFoundError, ProductRepository
 
 LOGGER = logging.getLogger(__name__)
 
@@ -46,13 +46,14 @@ class InMemoryProductRepository(ProductRepository):
     ONE dict keyed by id for O(1) get/delete. ``list_products`` is a linear
     scan + filter + ``sorted()`` (with the id tiebreak) + slice. There are NO
     secondary index structures of any kind. Each entity kind is owned by a
-    dict holding FROZEN entities by id, plus a name-to-id map: the name is
-    the authority of uniqueness, ids follow the SLUG rule (see :func:`_slug`)
-    and, once created, are frozen. A rename replaces the stored entity with
-    a NEW FROZEN entity (same id, new name) and re-points the stored products
-    naively (O(n)); snapshots already in the caller's hand keep the old
-    entity, which is the observable snapshot semantics shared with the Mongo
-    backend. ``ensure_indexes`` and ``close`` are no-ops.
+    dict holding FROZEN entities by id, plus a name-to-id map (a duplicate
+    name is legal; the map keeps the last writer); ids follow the SLUG rule
+    (see :func:`_slug`) and, once created, are frozen. A rename replaces the
+    stored entity with a NEW FROZEN entity (same id, new name) and re-points
+    the stored products naively (O(n)); snapshots already in the caller's
+    hand keep the old entity, which is the observable snapshot semantics
+    shared with the Mongo backend. ``ensure_indexes`` and ``close`` are
+    no-ops.
     """
 
     def __init__(self) -> None:
@@ -260,8 +261,6 @@ class InMemoryProductRepository(ProductRepository):
             raise EntityNotFoundError(f"category id {category_id!r} not found")
         if entity.name == trimmed:
             return entity
-        if self._category_names.get(trimmed) is not None:
-            raise EntityNameConflictError(f"category name {trimmed!r} already in use")
         # New FROZEN entity, SAME id; the name map is re-anchored and every
         # stored product is re-pointed naively (O(n)). Snapshots already in
         # the caller's hand keep the old entity (snapshot semantics).
@@ -304,8 +303,6 @@ class InMemoryProductRepository(ProductRepository):
             raise EntityNotFoundError(f"brand id {brand_id!r} not found")
         if entity.name == trimmed:
             return entity
-        if self._brand_names.get(trimmed) is not None:
-            raise EntityNameConflictError(f"brand name {trimmed!r} already in use")
         renamed = Brand(id=entity.id, name=trimmed)
         self._brands[brand_id] = renamed
         del self._brand_names[entity.name]

@@ -358,18 +358,10 @@ def test_rename_category_unknown_id_404(client):
 
 
 def test_rename_category_unknown_id_beats_invalid_body(client):
-    # the 404 -> 400 -> 409 priority: existence is checked before the body
+    # the 404 -> 400 priority: existence is checked before the body
     resp = client.put("/api/categories/no-such-id", json={})
     assert resp.status_code == 404
     assert resp.get_json() == {"error": "not found"}
-
-
-def test_rename_category_conflict_409(client):
-    items = client.get("/api/categories").get_json()
-    assert len(items) >= 2  # seeded data invariant
-    resp = client.put(f"/api/categories/{items[0]['id']}", json={"name": items[1]["name"]})
-    assert resp.status_code == 409
-    assert resp.get_json() == {"error": "name already in use"}
 
 
 def test_delete_category_reports_affected_products(client):
@@ -427,14 +419,6 @@ def test_rename_brand_id_is_stable_in_memory(client, backend):
 def test_rename_brand_order_404_beats_400(client):
     resp = client.put("/api/brands/no-such-id", json={})
     assert resp.status_code == 404
-
-
-def test_rename_brand_conflict_409(client):
-    items = client.get("/api/brands").get_json()
-    assert len(items) >= 2  # seeded data invariant
-    resp = client.put(f"/api/brands/{items[0]['id']}", json={"name": items[1]["name"]})
-    assert resp.status_code == 409
-    assert resp.get_json() == {"error": "name already in use"}
 
 
 def test_delete_brand_reports_affected_products(client):

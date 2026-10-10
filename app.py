@@ -16,7 +16,7 @@ from functools import wraps
 from flask import Flask, g, jsonify, request, send_from_directory
 
 from models import Brand, Category, Product, ProductQuery
-from repository import EntityNameConflictError, EntityNotFoundError, ProductRepository
+from repository import EntityNotFoundError, ProductRepository
 
 VALID_SORT_FIELDS = {"name", "price", "rating", "units_sold", "created_at"}
 
@@ -24,10 +24,9 @@ VALID_SORT_FIELDS = {"name", "price", "rating", "units_sold", "created_at"}
 def repo_guard(route_fn):
     """Single exception-mapping block shared by every repository-facing route.
 
-    The priority order is 404, then 400, then 409:
-    ``EntityNotFoundError`` maps to 404 ``{"error": "not found"}``,
-    ``ValueError`` to 400 (its message is preserved),
-    ``EntityNameConflictError`` to 409 ``{"error": "name already in use"}``.
+    The priority order is 404, then 400: ``EntityNotFoundError`` maps to 404
+    ``{"error": "not found"}``, ``ValueError`` to 400 (its message is
+    preserved).
     """
 
     @wraps(route_fn)
@@ -38,8 +37,6 @@ def repo_guard(route_fn):
             return jsonify({"error": "not found"}), 404
         except ValueError as exc:
             return jsonify({"error": str(exc)}), 400
-        except EntityNameConflictError:
-            return jsonify({"error": "name already in use"}), 409
 
     return wrapper
 
@@ -302,8 +299,7 @@ def create_app(repository: ProductRepository) -> Flask:
     @app.put("/api/categories/<string:category_id>")
     @repo_guard
     def rename_category(category_id: str):
-        # Error priority is 404, then 400, then 409: existence first, then the
-        # body shape, then a name owned by another entity.
+        # Error priority is 404, then 400: existence first, then the body shape.
         if repository.get_category(category_id) is None:
             raise EntityNotFoundError(f"category id {category_id!r} not found")
         entity = _rename_entity(category_id, repository.rename_category)
