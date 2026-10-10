@@ -12,10 +12,14 @@ database.
 
 from __future__ import annotations
 
+import logging
+
 from pymongo import MongoClient
 
 from models import Brand, CatalogStats, Category, Product, ProductPage, ProductQuery
 from repository import ProductRepository
+
+LOGGER = logging.getLogger(__name__)
 
 # The Mongo collection that holds products. A neutral contract detail: the
 # test fixtures and seeder import this to know where to clean up. Deliberately
@@ -45,6 +49,7 @@ class MongoProductRepository(ProductRepository):
 
     def close(self) -> None:
         """Release backend resources. Called once at shutdown."""
+        LOGGER.info("close()")
         raise NotImplementedError("TODO: implement 'close' using MongoDB")
 
     def create_product(self, product: Product) -> Product:
@@ -54,6 +59,7 @@ class MongoProductRepository(ProductRepository):
         on ``product`` is replaced); a referenced category / brand is
         auto-created on first sight of its name. Returns the stored product.
         """
+        LOGGER.info("create_product(%r, %s, %d)", product.name, product.price, product.stock)
         raise NotImplementedError("TODO: implement 'create_product' using MongoDB")
 
     def create_products(self, products: list[Product]) -> list[Product]:
@@ -64,6 +70,7 @@ class MongoProductRepository(ProductRepository):
         for the whole batch. Returns the stored products in input order; an
         empty input returns an empty list.
         """
+        LOGGER.info("create_products(%d)", len(products))
         # Not required immediately. Can be implemented later.
         return [self.create_product(product) for product in products]
 
@@ -72,6 +79,7 @@ class MongoProductRepository(ProductRepository):
 
         Never raises: an unknown or malformed id yields ``None``.
         """
+        LOGGER.info("get_product(%r)", product_id)
         raise NotImplementedError("TODO: implement 'get_product' using MongoDB")
 
     def update_product(self, product: Product) -> Product:
@@ -85,6 +93,7 @@ class MongoProductRepository(ProductRepository):
         The repository does NOT re-validate the fields: it trusts the typed
         product. Returns the updated product.
         """
+        LOGGER.info("update_product(%r, %r)", product.id, product.name)
         raise NotImplementedError("TODO: implement 'update_product' using MongoDB")
 
     def list_products(self, query: ProductQuery) -> ProductPage:
@@ -94,6 +103,7 @@ class MongoProductRepository(ProductRepository):
         ``brand`` filters are by NAME (exact, case-sensitive). Ties on
         ``sort_field`` are broken by ``id`` ascending.
         """
+        LOGGER.info("list_products(%r)", query)
         raise NotImplementedError("TODO: implement 'list_products' using MongoDB")
 
     def delete_product(self, product_id: str) -> None:
@@ -101,6 +111,7 @@ class MongoProductRepository(ProductRepository):
 
         An unknown or malformed id raises ``repository.EntityNotFoundError``.
         """
+        LOGGER.info("delete_product(%r)", product_id)
         raise NotImplementedError("TODO: implement 'delete_product' using MongoDB")
 
     def get_stats(self) -> CatalogStats:
@@ -113,10 +124,12 @@ class MongoProductRepository(ProductRepository):
         ``best_sellers``). ``best_sellers`` is top-5 by ``units_sold`` desc
         with an ``id``-asc tiebreak.
         """
+        LOGGER.info("get_stats()")
         raise NotImplementedError("TODO: implement 'get_stats' using MongoDB")
 
     def ensure_indexes(self) -> None:
         """Ensure backend indexes exist. Idempotent."""
+        LOGGER.info("ensure_indexes()")
         # Not required immediately. Can be implemented later.
         pass
 
@@ -126,6 +139,7 @@ class MongoProductRepository(ProductRepository):
         Categories are created implicitly when products are saved with an
         unknown name.
         """
+        LOGGER.info("list_categories()")
         raise NotImplementedError("TODO: implement 'list_categories' using MongoDB")
 
     def get_category(self, category_id: str) -> Category | None:
@@ -134,6 +148,7 @@ class MongoProductRepository(ProductRepository):
         Never raises: an unknown or malformed id yields ``None``. Categories
         are created implicitly when products are saved with an unknown name.
         """
+        LOGGER.info("get_category(%r)", category_id)
         raise NotImplementedError("TODO: implement 'get_category' using MongoDB")
 
     def rename_category(self, category_id: str, new_name: str) -> Category:
@@ -149,6 +164,7 @@ class MongoProductRepository(ProductRepository):
         the category carries the new name at the next fetch. Returns the
         renamed entity.
         """
+        LOGGER.info("rename_category(%r, %r)", category_id, new_name)
         raise NotImplementedError("TODO: implement 'rename_category' using MongoDB")
 
     def delete_category(self, category_id: str) -> int:
@@ -160,6 +176,7 @@ class MongoProductRepository(ProductRepository):
         ``repository.EntityNotFoundError``. The count is 0 for an orphaned
         category.
         """
+        LOGGER.info("delete_category(%r)", category_id)
         raise NotImplementedError("TODO: implement 'delete_category' using MongoDB")
 
     def list_brands(self) -> list[Brand]:
@@ -168,6 +185,7 @@ class MongoProductRepository(ProductRepository):
         Brands are created implicitly when products are saved with an unknown
         name.
         """
+        LOGGER.info("list_brands()")
         raise NotImplementedError("TODO: implement 'list_brands' using MongoDB")
 
     def get_brand(self, brand_id: str) -> Brand | None:
@@ -176,6 +194,7 @@ class MongoProductRepository(ProductRepository):
         Never raises: an unknown or malformed id yields ``None``. Brands are
         created implicitly when products are saved with an unknown name.
         """
+        LOGGER.info("get_brand(%r)", brand_id)
         raise NotImplementedError("TODO: implement 'get_brand' using MongoDB")
 
     def rename_brand(self, brand_id: str, new_name: str) -> Brand:
@@ -191,6 +210,7 @@ class MongoProductRepository(ProductRepository):
         the brand carries the new name at the next fetch. Returns the renamed
         entity.
         """
+        LOGGER.info("rename_brand(%r, %r)", brand_id, new_name)
         raise NotImplementedError("TODO: implement 'rename_brand' using MongoDB")
 
     def delete_brand(self, brand_id: str) -> int:
@@ -202,4 +222,5 @@ class MongoProductRepository(ProductRepository):
         ``repository.EntityNotFoundError``. The count is 0 for an orphaned
         brand.
         """
+        LOGGER.info("delete_brand(%r)", brand_id)
         raise NotImplementedError("TODO: implement 'delete_brand' using MongoDB")

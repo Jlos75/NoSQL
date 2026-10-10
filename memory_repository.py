@@ -13,12 +13,15 @@ the contract.
 
 from __future__ import annotations
 
+import logging
 import re
 import uuid
 from dataclasses import replace
 
 from models import Brand, CatalogStats, Category, CategoryStats, Product, ProductPage, ProductQuery
 from repository import EntityNameConflictError, EntityNotFoundError, ProductRepository
+
+LOGGER = logging.getLogger(__name__)
 
 
 def _slug(name: str) -> str:
@@ -104,6 +107,7 @@ class InMemoryProductRepository(ProductRepository):
         return self._get_or_create_entity(entity.name, Brand, self._brands, self._brand_names)
 
     def create_product(self, product: Product) -> Product:
+        LOGGER.info("create_product(%r, %s, %d)", product.name, product.price, product.stock)
         stored = replace(
             product,
             id=uuid.uuid4().hex,
@@ -114,16 +118,19 @@ class InMemoryProductRepository(ProductRepository):
         return stored
 
     def create_products(self, products: list[Product]) -> list[Product]:
+        LOGGER.info("create_products(%d)", len(products))
         # The shared name maps guarantee that a name referenced anywhere in
         # the batch is registered exactly once: one entity per name.
         return [self.create_product(product) for product in products]
 
     def get_product(self, product_id: str) -> Product | None:
+        LOGGER.info("get_product(%r)", product_id)
         # The stored product already carries its frozen entities: the fetch
         # returns them as-is (snapshot semantics, as on the Mongo backend).
         return self._by_id.get(product_id)
 
     def update_product(self, product: Product) -> Product:
+        LOGGER.info("update_product(%r, %r)", product.id, product.name)
         existing = self._by_id.get(product.id)
         if existing is None:
             raise EntityNotFoundError(f"product id {product.id!r} not found")
@@ -146,6 +153,7 @@ class InMemoryProductRepository(ProductRepository):
         return stored
 
     def list_products(self, query: ProductQuery) -> ProductPage:
+        LOGGER.info("list_products(%r)", query)
         items = list(self._by_id.values())
 
         # Filters are by NAME: a product whose category / brand is None can
@@ -197,10 +205,12 @@ class InMemoryProductRepository(ProductRepository):
         )
 
     def delete_product(self, product_id: str) -> None:
+        LOGGER.info("delete_product(%r)", product_id)
         if self._by_id.pop(product_id, None) is None:
             raise EntityNotFoundError(f"product id {product_id!r} not found")
 
     def get_stats(self) -> CatalogStats:
+        LOGGER.info("get_stats()")
         products = list(self._by_id.values())
         total = len(products)
         if total == 0:
@@ -240,12 +250,15 @@ class InMemoryProductRepository(ProductRepository):
         )
 
     def list_categories(self) -> list[Category]:
+        LOGGER.info("list_categories()")
         return sorted(self._categories.values(), key=lambda c: c.name)
 
     def get_category(self, category_id: str) -> Category | None:
+        LOGGER.info("get_category(%r)", category_id)
         return self._categories.get(category_id)
 
     def rename_category(self, category_id: str, new_name: str) -> Category:
+        LOGGER.info("rename_category(%r, %r)", category_id, new_name)
         trimmed = new_name.strip()
         if not trimmed:
             raise ValueError("name must be a non-empty string")
@@ -269,6 +282,7 @@ class InMemoryProductRepository(ProductRepository):
         return renamed
 
     def delete_category(self, category_id: str) -> int:
+        LOGGER.info("delete_category(%r)", category_id)
         entity = self._categories.get(category_id)
         if entity is None:
             raise EntityNotFoundError(f"category id {category_id!r} not found")
@@ -282,12 +296,15 @@ class InMemoryProductRepository(ProductRepository):
         return affected
 
     def list_brands(self) -> list[Brand]:
+        LOGGER.info("list_brands()")
         return sorted(self._brands.values(), key=lambda b: b.name)
 
     def get_brand(self, brand_id: str) -> Brand | None:
+        LOGGER.info("get_brand(%r)", brand_id)
         return self._brands.get(brand_id)
 
     def rename_brand(self, brand_id: str, new_name: str) -> Brand:
+        LOGGER.info("rename_brand(%r, %r)", brand_id, new_name)
         trimmed = new_name.strip()
         if not trimmed:
             raise ValueError("name must be a non-empty string")
@@ -308,6 +325,7 @@ class InMemoryProductRepository(ProductRepository):
         return renamed
 
     def delete_brand(self, brand_id: str) -> int:
+        LOGGER.info("delete_brand(%r)", brand_id)
         entity = self._brands.get(brand_id)
         if entity is None:
             raise EntityNotFoundError(f"brand id {brand_id!r} not found")
@@ -322,6 +340,8 @@ class InMemoryProductRepository(ProductRepository):
 
     def ensure_indexes(self) -> None:
         """No-op: the in-memory backend has no indexes to build."""
+        LOGGER.info("ensure_indexes()")
 
     def close(self) -> None:
         """No-op: the in-memory backend holds no external resources."""
+        LOGGER.info("close()")
