@@ -32,7 +32,7 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 
 from models import Brand, Category, Product, now_utc
-from mongo_repository import COLLECTION_NAME, MongoProductRepository
+from mongo_repository import PRODUCT_COLLECTION_NAME, MongoProductRepository
 from repository import DEFAULT_MONGO_DB, DEFAULT_MONGO_URI
 
 DEFAULT_COUNT = 50000
@@ -240,7 +240,8 @@ def main() -> None:
         raise SystemExit(1) from None
 
     print(
-        f"count={count} inserted={inserted} db={db_name}.{COLLECTION_NAME} duration={duration:.3f}s"
+        f"count={count} inserted={inserted} "
+        f"db={db_name}.{PRODUCT_COLLECTION_NAME} duration={duration:.3f}s"
     )
     _close_quietly(repo)
 

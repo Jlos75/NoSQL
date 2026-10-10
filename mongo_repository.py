@@ -19,7 +19,7 @@ from repository import ProductRepository
 # The Mongo collection that holds products. A neutral contract detail: the
 # test fixtures and seeder import this to know where to clean up. Deliberately
 # NOT a performance hint (no mention of indexes, $text, keyset, projections).
-COLLECTION_NAME = "products"
+PRODUCT_COLLECTION_NAME = "products"
 
 
 class MongoProductRepository(ProductRepository):
