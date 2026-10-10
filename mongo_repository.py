@@ -1,6 +1,7 @@
 """=== TO COMPLETE ===
 
-This file is the implementation gap: 17 methods, none of them written.
+This file is the implementation gap: 15 of the 17 methods are stubs
+(``ensure_indexes`` is a deliberate no-op, ``create_products`` is provided).
 
 The ``InMemoryProductRepository`` in ``memory_repository.py`` is the reference
 behavior. Implement this repository on MongoDB.
@@ -27,8 +28,9 @@ class MongoProductRepository(ProductRepository):
     ``InMemoryProductRepository``, implemented on MongoDB.
 
     ``__init__`` receives the URI and DB name from the factory; it does NOT
-    read environment variables. Every one of the 17 methods currently raises
-    ``NotImplementedError``.
+    read environment variables. 15 of the 17 methods currently raise
+    ``NotImplementedError`` (``ensure_indexes`` is a deliberate no-op,
+    ``create_products`` is provided).
 
     The member docstrings state the contract ONLY. They deliberately contain
     NO hints about indexes, ``$text``, keyset pagination, or projections.
@@ -62,7 +64,8 @@ class MongoProductRepository(ProductRepository):
         for the whole batch. Returns the stored products in input order; an
         empty input returns an empty list.
         """
-        raise NotImplementedError("TODO: implement 'create_products' using MongoDB")
+        # Not required immediately. Can be implemented later.
+        return [self.create_product(product) for product in products]
 
     def get_product(self, product_id: str) -> Product | None:
         """Return the product with ``product_id`` (entities materialized at fetch time).
