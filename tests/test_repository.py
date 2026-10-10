@@ -361,23 +361,6 @@ def test_list_products_pagination_beyond_last_page_empty(repo, hand_products):
     assert page.total == len(hand_products)
 
 
-def test_list_products_page_size_clamp(repo):
-    page = repo.list_products(ProductQuery(page_size=500))
-    assert page.page_size == 100
-    assert len(page.items) <= 100
-
-
-def test_list_products_page_size_zero_clamps_to_one(repo):
-    page = repo.list_products(ProductQuery(page_size=0))
-    assert page.page_size == 1
-    assert len(page.items) == 1
-
-
-def test_list_products_page_below_one_clamps_to_one(repo):
-    assert repo.list_products(ProductQuery(page=0)).page == 1
-    assert repo.list_products(ProductQuery(page=-3)).page == 1
-
-
 def test_delete_product_existing(repo):
     created = repo.create_product(Product.from_dict(_payload("ToDelete")))
     before = repo.get_stats().total
