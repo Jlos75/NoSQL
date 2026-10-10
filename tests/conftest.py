@@ -63,7 +63,7 @@ def _make_repo(backend: str, products: list[Product]) -> ProductRepository:
 BASE_DT = datetime(2026, 1, 1, 12, 0, 0)  # naive UTC
 
 
-def _hp(name, description, category, brand, price, stock, rating, units_sold, seconds):
+def _tp(name, description, category, brand, price, stock, rating, units_sold, seconds):
     return Product(
         id="",
         name=name,
@@ -78,7 +78,7 @@ def _hp(name, description, category, brand, price, stock, rating, units_sold, se
     )
 
 
-def build_hand_products() -> list[Product]:
+def build_test_catalog() -> list[Product]:
     # Deliberate structure:
     #  - price tie: 0, 1, 2 all at 100.0 (boundary used by the inclusive test)
     #  - units_sold tie: 3, 4, 5 all at 500
@@ -89,43 +89,43 @@ def build_hand_products() -> list[Product]:
     #  - NO category / NO brand: Naked Gadget (the get_stats exclusion
     #    invariant: such products never appear in by_category)
     return [
-        _hp("Zebra42 Widget", "Durable zebra42 gadget", "Books", "Acme", 100.0, 10, 4.5, 100, 0),
-        _hp("Alpha Chair", "Made of zebrawood", "Toys", "Globex", 100.0, 20, 3.5, 200, 60),
-        _hp("Beta Lamp", "Bright beta lamp for study", "Food", "Initech", 100.0, 30, 2.5, 300, 120),
-        _hp("Gamma Cup", "Insulated gamma cup", "Sports", "Umbrella", 250.0, 40, 4.0, 500, 180),
-        _hp("Delta Pen", "Smooth delta pen for notes", "Music", "Stark", 15.0, 5, 4.8, 500, 240),
-        _hp("Epsilon Hat", "Cozy epsilon hat", "Books", "Acme", 75.0, 15, 3.9, 500, 300),
-        _hp("Zulu Rope", "Strong climbing cord", "Toys", "Globex", 60.0, 0, 4.2, 75, 360),
-        _hp("Kilo Board", "Sturdy kilo board", "Food", "Initech", 120.0, 25, 3.3, 45, 420),
-        _hp("Mango Box", "Light mango box", "Sports", "Umbrella", 33.0, 8, 2.9, 60, 480),
-        _hp("Nova Case", "Durable nova case", "Music", "Stark", 210.0, 12, 4.6, 90, 540),
-        _hp("Orion Tool", "Precision orion tool", "Books", "Acme", 50.0, 18, 3.7, 55, 600),
-        _hp("Puma Bag", "Roomy puma bag", "Toys", "Globex", 90.0, 22, 4.1, 70, 660),
-        _hp("Quill Ink", "Rich quill ink", "Food", "Initech", 12.0, 4, 3.2, 35, 720),
-        _hp("Raven Desk", "Elegant raven desk", "Sports", "Umbrella", 450.0, 9, 4.4, 80, 780),
-        _hp("Sable Coat", "Warm sable coat", "Music", "Stark", 300.0, 14, 3.8, 65, 840),
-        _hp("Terra Pot", "Tough terra pot", "Books", "Acme", 40.0, 6, 2.7, 40, 900),
-        _hp("Ultra Fan", "Quiet ultra fan", "Toys", "Globex", 85.0, 11, 4.3, 50, 960),
-        _hp("Vega Sock", "Soft vega socks", "Food", "Initech", 20.0, 0, 3.6, 30, 1020),
-        _hp("Willow Shelf", "Stable willow shelf", "Sports", "Umbrella", 150.0, 7, 4.0, 55, 1080),
-        _hp("Xenon Light", "Bright xenon light", "Music", "Stark", 275.0, 3, 4.7, 85, 1140),
-        _hp("Yarrow Mat", "Cushioned yarrow mat", "Books", "Acme", 65.0, 16, 3.4, 60, 1200),
-        _hp("Zephyr Kite", "Colorful zephyr kite", "Toys", "Globex", 28.0, 19, 3.1, 45, 1260),
-        _hp("Aster Frame", "Slim aster frame", "Food", "Initech", 130.0, 13, 3.9, 70, 1320),
-        _hp("Basil Clock", "Ticking basil clock", "Sports", "Umbrella", 190.0, 10, 4.2, 75, 1380),
-        _hp("Coral Ring", "Glossy coral ring", "Music", "Stark", 1.0, 2, 5.0, 25, 1440),
-        _hp("Naked Gadget", "Unclassified (stats invariant)", None, None, 55.5, 3, 1.0, 5, 1500),
+        _tp("Zebra42 Widget", "Durable zebra42 gadget", "Books", "Acme", 100.0, 10, 4.5, 100, 0),
+        _tp("Alpha Chair", "Made of zebrawood", "Toys", "Globex", 100.0, 20, 3.5, 200, 60),
+        _tp("Beta Lamp", "Bright beta lamp for study", "Food", "Initech", 100.0, 30, 2.5, 300, 120),
+        _tp("Gamma Cup", "Insulated gamma cup", "Sports", "Umbrella", 250.0, 40, 4.0, 500, 180),
+        _tp("Delta Pen", "Smooth delta pen for notes", "Music", "Stark", 15.0, 5, 4.8, 500, 240),
+        _tp("Epsilon Hat", "Cozy epsilon hat", "Books", "Acme", 75.0, 15, 3.9, 500, 300),
+        _tp("Zulu Rope", "Strong climbing cord", "Toys", "Globex", 60.0, 0, 4.2, 75, 360),
+        _tp("Kilo Board", "Sturdy kilo board", "Food", "Initech", 120.0, 25, 3.3, 45, 420),
+        _tp("Mango Box", "Light mango box", "Sports", "Umbrella", 33.0, 8, 2.9, 60, 480),
+        _tp("Nova Case", "Durable nova case", "Music", "Stark", 210.0, 12, 4.6, 90, 540),
+        _tp("Orion Tool", "Precision orion tool", "Books", "Acme", 50.0, 18, 3.7, 55, 600),
+        _tp("Puma Bag", "Roomy puma bag", "Toys", "Globex", 90.0, 22, 4.1, 70, 660),
+        _tp("Quill Ink", "Rich quill ink", "Food", "Initech", 12.0, 4, 3.2, 35, 720),
+        _tp("Raven Desk", "Elegant raven desk", "Sports", "Umbrella", 450.0, 9, 4.4, 80, 780),
+        _tp("Sable Coat", "Warm sable coat", "Music", "Stark", 300.0, 14, 3.8, 65, 840),
+        _tp("Terra Pot", "Tough terra pot", "Books", "Acme", 40.0, 6, 2.7, 40, 900),
+        _tp("Ultra Fan", "Quiet ultra fan", "Toys", "Globex", 85.0, 11, 4.3, 50, 960),
+        _tp("Vega Sock", "Soft vega socks", "Food", "Initech", 20.0, 0, 3.6, 30, 1020),
+        _tp("Willow Shelf", "Stable willow shelf", "Sports", "Umbrella", 150.0, 7, 4.0, 55, 1080),
+        _tp("Xenon Light", "Bright xenon light", "Music", "Stark", 275.0, 3, 4.7, 85, 1140),
+        _tp("Yarrow Mat", "Cushioned yarrow mat", "Books", "Acme", 65.0, 16, 3.4, 60, 1200),
+        _tp("Zephyr Kite", "Colorful zephyr kite", "Toys", "Globex", 28.0, 19, 3.1, 45, 1260),
+        _tp("Aster Frame", "Slim aster frame", "Food", "Initech", 130.0, 13, 3.9, 70, 1320),
+        _tp("Basil Clock", "Ticking basil clock", "Sports", "Umbrella", 190.0, 10, 4.2, 75, 1380),
+        _tp("Coral Ring", "Glossy coral ring", "Music", "Stark", 1.0, 2, 5.0, 25, 1440),
+        _tp("Naked Gadget", "Unclassified (stats invariant)", None, None, 55.5, 3, 1.0, 5, 1500),
     ]
 
 
 @pytest.fixture
-def hand_products() -> list[Product]:
-    return build_hand_products()
+def test_products() -> list[Product]:
+    return build_test_catalog()
 
 
 @pytest.fixture
-def repo(backend: str, hand_products: list[Product]) -> ProductRepository:
-    r = _make_repo(backend, hand_products)
+def repo(backend: str, test_products: list[Product]) -> ProductRepository:
+    r = _make_repo(backend, test_products)
     yield r
     # No drop in teardown: a failing [mongo] test keeps its data in place for
     # inspection; the next test's setup drops the DB.

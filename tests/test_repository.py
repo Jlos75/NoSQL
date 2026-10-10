@@ -204,61 +204,61 @@ def test_update_product_rebinds_entities_by_name_and_detaches(repo):
     assert updated.brand is None
 
 
-def test_list_products_unfiltered(repo, hand_products):
+def test_list_products_unfiltered(repo, test_products):
     page = repo.list_products(ProductQuery())
-    assert page.total == len(hand_products)
+    assert page.total == len(test_products)
     assert page.page_size == 20  # default
     assert len(page.items) == 20  # first page of 26
-    assert page.total_pages == math.ceil(len(hand_products) / 20)
+    assert page.total_pages == math.ceil(len(test_products) / 20)
     # default sort: created_at descending
     created = [p.created_at for p in page.items]
     assert created == sorted(created, reverse=True)
-    latest = max(hand_products, key=lambda p: p.created_at)
+    latest = max(test_products, key=lambda p: p.created_at)
     assert page.items[0].name == latest.name
 
 
-def test_list_products_filter_category(repo, hand_products):
+def test_list_products_filter_category(repo, test_products):
     page = repo.list_products(ProductQuery(category="Books", page_size=100))
-    expected = [p for p in hand_products if p.category is not None and p.category.name == "Books"]
+    expected = [p for p in test_products if p.category is not None and p.category.name == "Books"]
     assert page.total == len(expected)
     assert all(p.category is not None and p.category.name == "Books" for p in page.items)
 
 
-def test_list_products_price_range_inclusive(repo, hand_products):
+def test_list_products_price_range_inclusive(repo, test_products):
     page = repo.list_products(ProductQuery(price_min=100.0, page_size=100))
-    expected = [p for p in hand_products if p.price >= 100.0]
+    expected = [p for p in test_products if p.price >= 100.0]
     assert page.total == len(expected)
     assert any(p.price == 100.0 for p in page.items)
 
     page_max = repo.list_products(ProductQuery(price_max=100.0, page_size=100))
-    expected_max = [p for p in hand_products if p.price <= 100.0]
+    expected_max = [p for p in test_products if p.price <= 100.0]
     assert page_max.total == len(expected_max)
     assert any(p.price == 100.0 for p in page_max.items)
 
 
-def test_list_products_min_rating_inclusive(repo, hand_products):
+def test_list_products_min_rating_inclusive(repo, test_products):
     page = repo.list_products(ProductQuery(min_rating=4.0, page_size=100))
-    expected = [p for p in hand_products if p.rating >= 4.0]
+    expected = [p for p in test_products if p.rating >= 4.0]
     assert page.total == len(expected)
     assert any(p.rating == 4.0 for p in page.items)
 
 
-def test_list_products_in_stock_true(repo, hand_products):
+def test_list_products_in_stock_true(repo, test_products):
     page = repo.list_products(ProductQuery(in_stock=True, page_size=100))
-    expected = [p for p in hand_products if p.stock > 0]
+    expected = [p for p in test_products if p.stock > 0]
     assert page.total == len(expected)
     assert all(p.stock > 0 for p in page.items)
 
 
-def test_list_products_in_stock_false(repo, hand_products):
+def test_list_products_in_stock_false(repo, test_products):
     page = repo.list_products(ProductQuery(in_stock=False, page_size=100))
-    expected = [p for p in hand_products if p.stock == 0]
+    expected = [p for p in test_products if p.stock == 0]
     assert len(expected) >= 1
     assert page.total == len(expected)
     assert all(p.stock == 0 for p in page.items)
 
 
-def test_list_products_combined_filters(repo, hand_products):
+def test_list_products_combined_filters(repo, test_products):
     page = repo.list_products(
         ProductQuery(
             category="Books", price_min=40.0, price_max=100.0, min_rating=3.5, page_size=100
@@ -266,7 +266,7 @@ def test_list_products_combined_filters(repo, hand_products):
     )
     expected = [
         p
-        for p in hand_products
+        for p in test_products
         if p.category is not None
         and p.category.name == "Books"
         and 40.0 <= p.price <= 100.0
@@ -322,11 +322,11 @@ def test_list_products_search_zero_matches(repo):
     assert page.items == []
 
 
-def test_list_products_search_combined_with_category(repo, hand_products):
+def test_list_products_search_combined_with_category(repo, test_products):
     page = repo.list_products(ProductQuery(search_text="chair", category="Toys", page_size=100))
     expected = [
         p
-        for p in hand_products
+        for p in test_products
         if p.category is not None
         and p.category.name == "Toys"
         and ("chair" in p.name.lower() or "chair" in p.description.lower())
@@ -346,8 +346,8 @@ def test_list_products_pagination_page2_disjoint_from_page1(repo):
     assert not (ids1 & ids2)
 
 
-def test_list_products_pagination_last_page_short(repo, hand_products):
-    total = len(hand_products)
+def test_list_products_pagination_last_page_short(repo, test_products):
+    total = len(test_products)
     page_size = 10
     total_pages = math.ceil(total / page_size)
     last = repo.list_products(ProductQuery(page=total_pages, page_size=page_size))
@@ -355,10 +355,10 @@ def test_list_products_pagination_last_page_short(repo, hand_products):
     assert len(last.items) == total - (total_pages - 1) * page_size
 
 
-def test_list_products_pagination_beyond_last_page_empty(repo, hand_products):
+def test_list_products_pagination_beyond_last_page_empty(repo, test_products):
     page = repo.list_products(ProductQuery(page=999, page_size=10))
     assert page.items == []
-    assert page.total == len(hand_products)
+    assert page.total == len(test_products)
 
 
 def test_delete_product_existing(repo):
@@ -380,18 +380,18 @@ def test_delete_product_malformed_id_raises(repo):
             repo.delete_product(bad)
 
 
-def test_get_stats(repo, hand_products):
+def test_get_stats(repo, test_products):
     stats = repo.get_stats()
-    assert stats.total == len(hand_products)
+    assert stats.total == len(test_products)
     # products without a category are EXCLUDED from by_category
     assert sum(cs.count for cs in stats.by_category.values()) <= stats.total
     assert list(stats.by_category.keys()) == sorted(stats.by_category.keys())
 
-    expected_avg = sum(p.price for p in hand_products) / len(hand_products)
+    expected_avg = sum(p.price for p in test_products) / len(test_products)
     assert stats.average_price == pytest.approx(expected_avg)
 
     groups: dict[str, list[Product]] = {}
-    for p in hand_products:
+    for p in test_products:
         if p.category is None:
             continue
         groups.setdefault(p.category.name, []).append(p)
@@ -403,12 +403,12 @@ def test_get_stats(repo, hand_products):
         assert cs.total_value == pytest.approx(sum(p.price * p.stock for p in g))
 
 
-def test_list_categories_sorted_by_name(repo, hand_products):
+def test_list_categories_sorted_by_name(repo, test_products):
     categories = repo.list_categories()
     names = [c.name for c in categories]
     assert names == sorted(names)  # codepoint order
     assert all(c.id for c in categories)  # ids always populated
-    assert set(names) == {p.category.name for p in hand_products if p.category is not None}
+    assert set(names) == {p.category.name for p in test_products if p.category is not None}
 
 
 def test_get_category_by_id(repo):

@@ -44,12 +44,12 @@ def _is_iso_utc(value: str) -> bool:
     return dt.utcoffset() is not None and dt.utcoffset().total_seconds() == 0
 
 
-def test_list_products_shape(client, hand_products):
+def test_list_products_shape(client, test_products):
     resp = client.get("/api/products")
     assert resp.status_code == 200
     data = resp.get_json()
     assert set(data.keys()) == {"items", "total", "page", "page_size", "total_pages"}
-    assert data["total"] == len(hand_products)
+    assert data["total"] == len(test_products)
     assert data["page"] == 1
     assert data["page_size"] == 20
     assert len(data["items"]) == 20
@@ -262,13 +262,13 @@ def test_stats_matches_ground_truth(client, repo):
         assert vals["total_value"] == pytest.approx(sum(p.price * p.stock for p in g), abs=0.02)
 
 
-def test_meta_backend(client, repo, hand_products):
+def test_meta_backend(client, repo, test_products):
     resp = client.get("/meta")
     assert resp.status_code == 200
     data = resp.get_json()
     expected_backend = "mongo" if type(repo).__module__ == "mongo_repository" else "memory"
     assert data["backend"] == expected_backend
-    assert data["product_count"] == len(hand_products)
+    assert data["product_count"] == len(test_products)
 
 
 def test_list_categories(client):
