@@ -117,7 +117,10 @@ class MongoProductRepository(ProductRepository):
     def get_stats(self) -> CatalogStats:
         """Return whole-catalog statistics.
 
-        Money floats are rounded to 2 decimals. ``by_category`` contains ONLY
+        ``total`` is the number of products in the catalog: a plain count of
+        stored products, not a total price, not a total stock, and not a
+        count of distinct product names. Money floats are rounded to 2
+        decimals. ``by_category`` contains ONLY
         products that HAVE a category, keyed by the current category name and
         sorted by codepoint order; uncategorized products are excluded from
         ``by_category`` (they still count in ``total`` / ``average_price`` /

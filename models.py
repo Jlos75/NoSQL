@@ -274,6 +274,14 @@ class CategoryStats:
 class CatalogStats:
     """Whole-catalog statistics.
 
+    ``total`` is the number of products in the catalog: a plain COUNT of
+    stored products, not a total price, not a total stock, and not a count
+    of distinct product names. Every stored product counts, categorized or
+    not, in stock or out of stock.
+
+    ``average_price`` is the mean price over that same population of
+    products.
+
     ``by_category`` contains only products that HAVE a category: keys are the
     current category NAMES, sorted by codepoint order. Products without a
     category are excluded from ``by_category`` (they still count in
