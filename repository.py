@@ -123,9 +123,7 @@ class ProductRepository(ABC):
         decimals. ``by_category`` contains ONLY
         products that HAVE a category, keyed by the current category name and
         sorted by codepoint order; uncategorized products are excluded from
-        ``by_category`` (they still count in ``total`` / ``average_price`` /
-        ``best_sellers``). ``best_sellers`` is top-5 by ``units_sold`` desc
-        with an ``id``-asc tiebreak.
+        ``by_category`` (they still count in ``total`` / ``average_price``).
         """
 
     @abstractmethod

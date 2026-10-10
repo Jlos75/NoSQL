@@ -291,12 +291,10 @@ class CatalogStats:
     ``by_category`` contains only products that HAVE a category: keys are
     the current category NAMES, sorted by codepoint order. Products without
     a category are excluded from ``by_category`` (they still count in
-    ``total`` / ``average_price`` / ``best_sellers``). ``best_sellers`` is
-    the top 5 by ``units_sold`` descending, ties broken by ``id`` ascending.
+    ``total`` / ``average_price``).
     Money floats are rounded to 2 decimals in the repository layer.
     """
 
     total: int
     average_price: float
     by_category: dict[str, CategoryStats]
-    best_sellers: list[Product]

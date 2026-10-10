@@ -200,7 +200,6 @@ def create_app(repository: ProductRepository) -> Flask:
                     }
                     for cat, cs in s.by_category.items()
                 },
-                "best_sellers": [_product_to_dict(p) for p in s.best_sellers],
             }
         )
 

@@ -214,14 +214,14 @@ class InMemoryProductRepository(ProductRepository):
         products = list(self._by_id.values())
         total = len(products)
         if total == 0:
-            return CatalogStats(total=0, average_price=0.0, by_category={}, best_sellers=[])
+            return CatalogStats(total=0, average_price=0.0, by_category={})
 
         average_price = round(sum(p.price for p in products) / total, 2)
 
         # ``by_category`` contains ONLY products that have a category, keyed
         # by the current (registry-truth) name in codepoint order. Products
         # without a category are excluded from ``by_category`` but stay in
-        # ``total`` / ``average_price`` / ``best_sellers``.
+        # ``total`` / ``average_price``.
         groups: dict[str, list[Product]] = {}
         for p in products:
             if p.category is None:
@@ -238,15 +238,10 @@ class InMemoryProductRepository(ProductRepository):
                 count=count, average_price=avg_price, total_value=total_value
             )
 
-        sellers = sorted(products, key=lambda p: p.id)
-        sellers = sorted(sellers, key=lambda p: p.units_sold, reverse=True)
-        best_sellers = sellers[:5]
-
         return CatalogStats(
             total=total,
             average_price=average_price,
             by_category=by_category,
-            best_sellers=best_sellers,
         )
 
     def list_categories(self) -> list[Category]:

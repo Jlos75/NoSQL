@@ -261,11 +261,6 @@ def test_stats_matches_ground_truth(client, api_repo):
         assert vals["average_price"] == pytest.approx(sum(p.price for p in g) / len(g), abs=0.02)
         assert vals["total_value"] == pytest.approx(sum(p.price * p.stock for p in g), abs=0.02)
 
-    # best sellers: top 5 by units_sold desc, id asc tiebreak
-    expected = sorted(products, key=lambda p: p.id)
-    expected = sorted(expected, key=lambda p: p.units_sold, reverse=True)[:5]
-    assert [b["id"] for b in data["best_sellers"]] == [p.id for p in expected]
-
 
 def test_meta_backend(client, api_repo):
     resp = client.get("/meta")

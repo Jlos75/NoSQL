@@ -426,12 +426,6 @@ def test_get_stats(repo, hand_products):
         assert cs.average_price == round(sum(p.price for p in g) / len(g), 2)
         assert cs.total_value == round(sum(p.price * p.stock for p in g), 2)
 
-    assert len(stats.best_sellers) == 5
-    us = [p.units_sold for p in stats.best_sellers]
-    expected_us = sorted((p.units_sold for p in hand_products), reverse=True)[:5]
-    assert us == expected_us
-    _assert_tiebreak(stats.best_sellers, "units_sold")
-
 
 def test_list_categories_sorted_by_name(repo, hand_products):
     categories = repo.list_categories()
