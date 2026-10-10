@@ -36,7 +36,7 @@ def _drop_mongo_database() -> None:
 
     The student's Mongo schema is not ours: a Mongo implementation may store
     categories / brands in its own collections, so only dropping the entire
-    ``TEST_DB`` guarantees a clean slate (and a clean teardown).
+    ``TEST_DB`` guarantees a clean slate before each test.
     """
     from pymongo import MongoClient
 
@@ -127,8 +127,8 @@ def hand_products() -> list[Product]:
 def repo(backend: str, hand_products: list[Product]) -> ProductRepository:
     r = _make_repo(backend, hand_products)
     yield r
-    if backend == "mongo":
-        _drop_mongo_database()
+    # No drop in teardown: a failing [mongo] test keeps its data in place for
+    # inspection; the next test's setup drops the DB.
     r.close()
 
 
@@ -144,8 +144,8 @@ def seeded_products() -> list[Product]:
 def api_repo(backend: str, seeded_products: list[Product]) -> ProductRepository:
     r = _make_repo(backend, seeded_products)
     yield r
-    if backend == "mongo":
-        _drop_mongo_database()
+    # No drop in teardown: a failing [mongo] test keeps its data in place for
+    # inspection; the next test's setup drops the DB.
     r.close()
 
 
