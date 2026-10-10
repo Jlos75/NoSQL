@@ -243,8 +243,8 @@ def test_stats_matches_ground_truth(client, api_repo):
     products = _all_products(api_repo)
     total = len(products)
     assert data["total"] == total
-    # Money is compared with a two-cent tolerance to absorb a last-ulp
-    # sum/rounding flip between the Python and Mongo backends.
+    # Money is compared with a two-cent tolerance to absorb a last-ulp sum
+    # difference between the Python and Mongo backends.
     assert data["average_price"] == pytest.approx(sum(p.price for p in products) / total, abs=0.02)
     # products without a category are excluded from by_category
     assert sum(v["count"] for v in data["by_category"].values()) <= total

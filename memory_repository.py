@@ -217,7 +217,7 @@ class InMemoryProductRepository(ProductRepository):
         if total == 0:
             return CatalogStats(total=0, average_price=0.0, by_category={})
 
-        average_price = round(sum(p.price for p in products) / total, 2)
+        average_price = sum(p.price for p in products) / total
 
         # ``by_category`` contains ONLY products that have a category, keyed
         # by the current (registry-truth) name in codepoint order. Products
@@ -233,8 +233,8 @@ class InMemoryProductRepository(ProductRepository):
         for category in sorted(groups):
             group = groups[category]
             count = len(group)
-            avg_price = round(sum(p.price for p in group) / count, 2)
-            total_value = round(sum(p.price * p.stock for p in group), 2)
+            avg_price = sum(p.price for p in group) / count
+            total_value = sum(p.price * p.stock for p in group)
             by_category[category] = CategoryStats(
                 count=count, average_price=avg_price, total_value=total_value
             )

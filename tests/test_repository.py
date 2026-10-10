@@ -387,8 +387,8 @@ def test_get_stats(repo, hand_products):
     assert sum(cs.count for cs in stats.by_category.values()) <= stats.total
     assert list(stats.by_category.keys()) == sorted(stats.by_category.keys())
 
-    expected_avg = round(sum(p.price for p in hand_products) / len(hand_products), 2)
-    assert stats.average_price == expected_avg
+    expected_avg = sum(p.price for p in hand_products) / len(hand_products)
+    assert stats.average_price == pytest.approx(expected_avg)
 
     groups: dict[str, list[Product]] = {}
     for p in hand_products:
@@ -399,8 +399,8 @@ def test_get_stats(repo, hand_products):
     for cat, cs in stats.by_category.items():
         g = groups[cat]
         assert cs.count == len(g)
-        assert cs.average_price == round(sum(p.price for p in g) / len(g), 2)
-        assert cs.total_value == round(sum(p.price * p.stock for p in g), 2)
+        assert cs.average_price == pytest.approx(sum(p.price for p in g) / len(g))
+        assert cs.total_value == pytest.approx(sum(p.price * p.stock for p in g))
 
 
 def test_list_categories_sorted_by_name(repo, hand_products):

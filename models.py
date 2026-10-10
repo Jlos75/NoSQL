@@ -268,7 +268,6 @@ class CategoryStats:
     ``average_price`` is the mean price of the products in the category.
 
     ``total_value`` is the sum of ``price * stock`` across the category.
-    Money floats are rounded to 2 decimals in the repository layer.
     """
 
     count: int
@@ -292,7 +291,6 @@ class CatalogStats:
     the current category NAMES, sorted by codepoint order. Products without
     a category are excluded from ``by_category`` (they still count in
     ``total`` / ``average_price``).
-    Money floats are rounded to 2 decimals in the repository layer.
     """
 
     total: int
