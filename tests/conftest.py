@@ -1,15 +1,15 @@
-"""Shared fixtures: two datasets, two backends, Mongo-aware skipping.
+"""Shared fixtures: one static dataset, two backends.
 
-Two datasets are used:
+A single 26-product HAND-BUILT set (hardcoded below, known values, deliberate
+ties on price and units_sold, a boundary price, ~5% zero stock, one product
+with no category / no brand) seeds EVERY test, repository and API alike.
+No test value is generated at runtime: a failing test is debuggable by
+reading the fixture list.
 
-- a 26-product HAND-BUILT set (known values, deliberate ties on price and
-  units_sold, a boundary price, ~5% zero stock, one product with no category
-  / no brand) for repository tests;
-- a 1,000-product SEEDED set (seed 42, so stats are computable) for API tests.
-
-The 50k set is manual/perf only and is NEVER used by tests. Every test is
-parameterized over ``["memory", "mongo"]``; the Mongo variant SKIPS (never
-fails) when no mongod is reachable. No test asserts on wall-clock time.
+The generator in ``seed.py`` is a manual/perf tool and is NEVER used by
+tests. Every test is parameterized over ``["memory", "mongo"]``; the Mongo
+variant errors at setup (never skips) when no mongod is reachable. No test
+asserts on wall-clock time.
 """
 
 from __future__ import annotations
@@ -59,7 +59,7 @@ def _make_repo(backend: str, products: list[Product]) -> ProductRepository:
     return repo
 
 
-# --- 26-product hand-built dataset (repository tests) ---
+# --- 26-product hand-built dataset (every test) ---
 BASE_DT = datetime(2026, 1, 1, 12, 0, 0)  # naive UTC
 
 
@@ -132,28 +132,11 @@ def repo(backend: str, hand_products: list[Product]) -> ProductRepository:
     r.close()
 
 
-# --- 1,000-product seeded dataset (API tests) ---
 @pytest.fixture
-def seeded_products() -> list[Product]:
-    from seed import make_products
-
-    return make_products(1000)
-
-
-@pytest.fixture
-def api_repo(backend: str, seeded_products: list[Product]) -> ProductRepository:
-    r = _make_repo(backend, seeded_products)
-    yield r
-    # No drop in teardown: a failing [mongo] test keeps its data in place for
-    # inspection; the next test's setup drops the DB.
-    r.close()
-
-
-@pytest.fixture
-def client(api_repo: ProductRepository):
+def client(repo: ProductRepository):
     from app import create_app
 
-    app = create_app(api_repo)
+    app = create_app(repo)
     app.config["TESTING"] = True
     with app.test_client() as test_client:
         yield test_client
