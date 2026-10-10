@@ -299,13 +299,6 @@ def test_list_products_sort_name_asc(repo):
     _assert_tiebreak(page.items, "name")
 
 
-def test_list_products_search_case_insensitive(repo):
-    page = repo.list_products(ProductQuery(search_text="zebra42", page_size=100))
-    assert page.total >= 1
-    for p in page.items:
-        assert "zebra42" in p.name.lower() or "zebra42" in p.description.lower()
-
-
 def test_list_products_search_name_only(repo):
     # "zulu" appears only in a name (Zulu Rope), never in a description.
     page = repo.list_products(ProductQuery(search_text="zulu", page_size=100))

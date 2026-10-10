@@ -48,6 +48,11 @@ class ProductRepository(ABC):
     ``update_product`` / ``delete_product`` (and the rename / delete entity
     methods) raise :class:`EntityNotFoundError` when the target is unknown OR
     malformed. API mapping order: 404, then 400.
+
+    Every name comparison in the contract is case-sensitive: entity names
+    are matched exactly, so ``Books`` and ``books`` are two distinct
+    entities. The only case-insensitive match is ``ProductQuery.search_text``
+    (a substring match on the product name or description).
     """
 
     @abstractmethod
@@ -94,9 +99,10 @@ class ProductRepository(ABC):
         """Filter, sort and paginate products according to ``query``.
 
         ``price_min`` / ``price_max`` are inclusive; the ``category`` /
-        ``brand`` filters are by NAME (exact, case-sensitive). Ties on
-        ``sort_field`` are broken by ``id`` ascending. Returns a
-        :class:`ProductPage`.
+        ``brand`` filters are by NAME (exact, case-sensitive);
+        ``search_text`` is a case-insensitive substring match on the product
+        name or description. Ties on ``sort_field`` are broken by ``id``
+        ascending. Returns a :class:`ProductPage`.
         """
 
     @abstractmethod
@@ -148,11 +154,12 @@ class ProductRepository(ABC):
         """Rename the category; ``new_name`` is trimmed.
 
         An unknown or malformed ``category_id`` raises
-        :class:`EntityNotFoundError`; a name identical to the current one is
-        a no-op returning the entity. Whether the id is preserved across a
-        rename is implementation-defined (see the Category.id / Brand.id
-        docstrings). Every product referencing the category carries the new
-        name at the next fetch. Returns the renamed entity.
+        :class:`EntityNotFoundError`; a name identical to the current one
+        (case-sensitive) is a no-op returning the entity. Whether the id is
+        preserved across a rename is implementation-defined (see the
+        Category.id / Brand.id docstrings). Every product referencing the
+        category carries the new name at the next fetch. Returns the renamed
+        entity.
         """
 
     @abstractmethod
@@ -187,11 +194,12 @@ class ProductRepository(ABC):
         """Rename the brand; ``new_name`` is trimmed.
 
         An unknown or malformed ``brand_id`` raises
-        :class:`EntityNotFoundError`; a name identical to the current one is
-        a no-op returning the entity. Whether the id is preserved across a
-        rename is implementation-defined (see the Category.id / Brand.id
-        docstrings). Every product referencing the brand carries the new name
-        at the next fetch. Returns the renamed entity.
+        :class:`EntityNotFoundError`; a name identical to the current one
+        (case-sensitive) is a no-op returning the entity. Whether the id is
+        preserved across a rename is implementation-defined (see the
+        Category.id / Brand.id docstrings). Every product referencing the
+        brand carries the new name at the next fetch. Returns the renamed
+        entity.
         """
 
     @abstractmethod

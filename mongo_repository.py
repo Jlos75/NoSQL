@@ -38,6 +38,10 @@ class MongoProductRepository(ProductRepository):
 
     The member docstrings state the contract ONLY. They deliberately contain
     NO hints about indexes, ``$text``, keyset pagination, or projections.
+
+    Name matching follows the same convention: every name comparison is
+    case-sensitive (``Books`` and ``books`` are two distinct entities); the
+    only case-insensitive match is ``ProductQuery.search_text``.
     """
 
     def __init__(self, uri: str, db_name: str) -> None:
@@ -100,8 +104,9 @@ class MongoProductRepository(ProductRepository):
         """Filter, sort and paginate products according to ``query``.
 
         ``price_min`` / ``price_max`` are inclusive; the ``category`` /
-        ``brand`` filters are by NAME (exact, case-sensitive). Ties on
-        ``sort_field`` are broken by ``id`` ascending.
+        ``brand`` filters are by NAME (exact, case-sensitive);
+        ``search_text`` is a case-insensitive substring match on the product
+        name or description. Ties on ``sort_field`` are broken by ``id`` ascending.
         """
         LOGGER.info("list_products(%r)", query)
         raise NotImplementedError("TODO: implement 'list_products' using MongoDB")
@@ -157,9 +162,9 @@ class MongoProductRepository(ProductRepository):
 
         An unknown or malformed ``category_id`` raises
         ``repository.EntityNotFoundError``; a name identical to the current
-        one is a no-op returning the entity. Whether the ``id`` is
-        preserved across a rename is implementation-defined (see the
-        ``Category.id`` / ``Brand.id`` docstrings); every product
+        one (case-sensitive) is a no-op returning the entity. Whether the
+        ``id`` is preserved across a rename is implementation-defined (see
+        the ``Category.id`` / ``Brand.id`` docstrings); every product
         referencing the category carries the new name at the next fetch.
         Returns the renamed entity.
         """
@@ -201,11 +206,11 @@ class MongoProductRepository(ProductRepository):
 
         An unknown or malformed ``brand_id`` raises
         ``repository.EntityNotFoundError``; a name identical to the current
-        one is a no-op returning the entity. Whether the ``id`` is
-        preserved across a rename is implementation-defined (see the
-        ``Category.id`` / ``Brand.id`` docstrings); every product
-        referencing the brand carries the new name at the next fetch.
-        Returns the renamed entity.
+        one (case-sensitive) is a no-op returning the entity. Whether the
+        ``id`` is preserved across a rename is implementation-defined (see
+        the ``Category.id`` / ``Brand.id`` docstrings); every product
+        referencing the brand carries the new name at the next fetch. Returns
+        the renamed entity.
         """
         LOGGER.info("rename_brand(%r, %r)", brand_id, new_name)
         raise NotImplementedError("TODO: implement 'rename_brand' using MongoDB")
