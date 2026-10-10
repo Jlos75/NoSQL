@@ -117,3 +117,12 @@ consultation d'un produit sont ignorés.
 ```bash
 python bench.py --url http://localhost:5000 --runs 5
 ```
+
+
+## Avertissement
+
+Ceci est un exercice pédagogique, pas un produit. Aucune mesure de
+sécurité n'est implémentée : pas d'authentification ni
+d'autorisation, et la validation des entrées n'est pas une priorité.
+N'exposez jamais cette application à un réseau que vous ne
+contrôlez pas.
