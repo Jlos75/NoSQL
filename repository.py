@@ -52,8 +52,7 @@ class ProductRepository(ABC):
     ``update_product`` / ``delete_product`` (and the rename / delete entity
     methods) raise :class:`EntityNotFoundError` when the target is unknown OR
     malformed; a rename toward a name owned by another entity raises
-    :class:`EntityNameConflictError`; boundary validation (a name blank after
-    trimming) raises ``ValueError``. API mapping order: 404, then 400, then
+    :class:`EntityNameConflictError`. API mapping order: 404, then 400, then
     409.
     """
 
@@ -154,8 +153,8 @@ class ProductRepository(ABC):
     def rename_category(self, category_id: str, new_name: str) -> Category:
         """Rename the category; ``new_name`` is trimmed.
 
-        A name blank after trimming raises ``ValueError``; an unknown or
-        malformed ``category_id`` raises :class:`EntityNotFoundError`; a name
+        An unknown or malformed ``category_id`` raises
+        :class:`EntityNotFoundError`; a name
         owned by another entity raises
         :class:`EntityNameConflictError`; a name identical to the current one
         is a no-op returning the entity. Whether the id is preserved across a
@@ -195,8 +194,8 @@ class ProductRepository(ABC):
     def rename_brand(self, brand_id: str, new_name: str) -> Brand:
         """Rename the brand; ``new_name`` is trimmed.
 
-        A name blank after trimming raises ``ValueError``; an unknown or
-        malformed ``brand_id`` raises :class:`EntityNotFoundError`; a name
+        An unknown or malformed ``brand_id`` raises
+        :class:`EntityNotFoundError`; a name
         owned by another entity raises
         :class:`EntityNameConflictError`; a name identical to the current one
         is a no-op returning the entity. Whether the id is preserved across a

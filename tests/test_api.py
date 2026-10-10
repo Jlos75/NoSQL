@@ -334,9 +334,8 @@ def test_rename_category_extra_json_keys_are_ignored(client):
         (["not", "a", "dict"], "body must be a JSON object"),
         ({}, "name is required"),
         ({"name": 42}, "name must be a string"),
-        ({"name": "   "}, "name must be a non-empty string"),
     ],
-    ids=["non-dict", "missing-name", "non-string-name", "blank-name"],
+    ids=["non-dict", "missing-name", "non-string-name"],
 )
 def test_rename_category_invalid_bodies_400(client, body, error):
     cid, _ = _first_category(client)
@@ -360,7 +359,7 @@ def test_rename_category_unknown_id_404(client):
 
 def test_rename_category_unknown_id_beats_invalid_body(client):
     # the 404 -> 400 -> 409 priority: existence is checked before the body
-    resp = client.put("/api/categories/no-such-id", json={"name": "   "})
+    resp = client.put("/api/categories/no-such-id", json={})
     assert resp.status_code == 404
     assert resp.get_json() == {"error": "not found"}
 
@@ -426,7 +425,7 @@ def test_rename_brand_id_is_stable_in_memory(client, backend):
 
 
 def test_rename_brand_order_404_beats_400(client):
-    resp = client.put("/api/brands/no-such-id", json={"name": "   "})
+    resp = client.put("/api/brands/no-such-id", json={})
     assert resp.status_code == 404
 
 

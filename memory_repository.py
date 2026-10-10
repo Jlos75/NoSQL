@@ -255,8 +255,6 @@ class InMemoryProductRepository(ProductRepository):
     def rename_category(self, category_id: str, new_name: str) -> Category:
         LOGGER.info("rename_category(%r, %r)", category_id, new_name)
         trimmed = new_name.strip()
-        if not trimmed:
-            raise ValueError("name must be a non-empty string")
         entity = self._categories.get(category_id)
         if entity is None:
             raise EntityNotFoundError(f"category id {category_id!r} not found")
@@ -301,8 +299,6 @@ class InMemoryProductRepository(ProductRepository):
     def rename_brand(self, brand_id: str, new_name: str) -> Brand:
         LOGGER.info("rename_brand(%r, %r)", brand_id, new_name)
         trimmed = new_name.strip()
-        if not trimmed:
-            raise ValueError("name must be a non-empty string")
         entity = self._brands.get(brand_id)
         if entity is None:
             raise EntityNotFoundError(f"brand id {brand_id!r} not found")

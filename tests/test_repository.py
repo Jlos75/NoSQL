@@ -488,12 +488,6 @@ def test_rename_category_trims_the_new_name(repo):
     assert repo.get_category(renamed.id).name == "Padded Name"
 
 
-def test_rename_category_blank_after_trim_raises(repo):
-    books = next(c for c in repo.list_categories() if c.name == "Books")
-    with pytest.raises(ValueError):
-        repo.rename_category(books.id, "   ")
-
-
 def test_rename_category_unknown_id_raises(repo):
     with pytest.raises(EntityNotFoundError):
         repo.rename_category("no-such-id", "Whatever")
@@ -585,8 +579,6 @@ def test_rename_brand_id_is_stable_in_memory(repo, backend):
 def test_rename_brand_edge_cases(repo):
     acme = next(b for b in repo.list_brands() if b.name == "Acme")
     assert repo.rename_brand(acme.id, "Acme").name == "Acme"
-    with pytest.raises(ValueError):
-        repo.rename_brand(acme.id, "  ")
     with pytest.raises(EntityNotFoundError):
         repo.rename_brand("no-such-id", "X")
     with pytest.raises(EntityNameConflictError):

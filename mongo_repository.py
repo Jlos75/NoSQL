@@ -155,15 +155,14 @@ class MongoProductRepository(ProductRepository):
     def rename_category(self, category_id: str, new_name: str) -> Category:
         """Rename the category; ``new_name`` is trimmed.
 
-        A name blank after trimming raises ``ValueError``; an unknown or
-        malformed ``category_id`` raises ``repository.EntityNotFoundError``;
-        a name owned by another entity raises
-        ``repository.EntityNameConflictError``; a name identical to the
-        current one is a no-op returning the entity. Whether the ``id`` is
-        preserved across a rename is implementation-defined (see the
-        ``Category.id`` / ``Brand.id`` docstrings); every product referencing
-        the category carries the new name at the next fetch. Returns the
-        renamed entity.
+        An unknown or malformed ``category_id`` raises
+        ``repository.EntityNotFoundError``; a name owned by another entity
+        raises ``repository.EntityNameConflictError``; a name identical to
+        the current one is a no-op returning the entity. Whether the ``id``
+        is preserved across a rename is implementation-defined (see the
+        ``Category.id`` / ``Brand.id`` docstrings); every product
+        referencing the category carries the new name at the next fetch.
+        Returns the renamed entity.
         """
         LOGGER.info("rename_category(%r, %r)", category_id, new_name)
         raise NotImplementedError("TODO: implement 'rename_category' using MongoDB")
@@ -201,15 +200,14 @@ class MongoProductRepository(ProductRepository):
     def rename_brand(self, brand_id: str, new_name: str) -> Brand:
         """Rename the brand; ``new_name`` is trimmed.
 
-        A name blank after trimming raises ``ValueError``; an unknown or
-        malformed ``brand_id`` raises ``repository.EntityNotFoundError``; a
-        name owned by another entity raises
-        ``repository.EntityNameConflictError``; a name identical to the
-        current one is a no-op returning the entity. Whether the ``id`` is
-        preserved across a rename is implementation-defined (see the
-        ``Category.id`` / ``Brand.id`` docstrings); every product referencing
-        the brand carries the new name at the next fetch. Returns the renamed
-        entity.
+        An unknown or malformed ``brand_id`` raises
+        ``repository.EntityNotFoundError``; a name owned by another entity
+        raises ``repository.EntityNameConflictError``; a name identical to
+        the current one is a no-op returning the entity. Whether the ``id``
+        is preserved across a rename is implementation-defined (see the
+        ``Category.id`` / ``Brand.id`` docstrings); every product
+        referencing the brand carries the new name at the next fetch.
+        Returns the renamed entity.
         """
         LOGGER.info("rename_brand(%r, %r)", brand_id, new_name)
         raise NotImplementedError("TODO: implement 'rename_brand' using MongoDB")
