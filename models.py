@@ -21,15 +21,14 @@ def now_utc() -> datetime:
 class Category:
     """A product category reference carried by a product snapshot.
 
-    The ``id`` field: Opaque, unique per type. The in-memory reference
-    implementation freezes ids at creation: a rename never re-issues them.
-    Other implementations may re-issue the id on rename (for example,
-    name-as-identity in a denormalized design); the delivered API and pages
-    never rely on id stability across renames.
+    ``id`` is opaque and unique per type. ``id=None`` is the client-side
+    marker meaning "to be assigned by the repository": the repository
+    ignores it on write, and on read the id is always populated.
 
-    ``id=None`` is the client-side marker meaning "to be assigned by the
-    repository": the repository ignores it on write, and on read the id is
-    always populated.
+    The in-memory reference implementation freezes ids at creation: a rename
+    never re-issues them. Other implementations may re-issue the id on
+    rename (for example, name-as-identity in a denormalized design); the
+    delivered API and pages never rely on id stability across renames.
     """
 
     id: str | None
@@ -40,15 +39,14 @@ class Category:
 class Brand:
     """A product brand reference carried by a product snapshot.
 
-    The ``id`` field: Opaque, unique per type. The in-memory reference
-    implementation freezes ids at creation: a rename never re-issues them.
-    Other implementations may re-issue the id on rename (for example,
-    name-as-identity in a denormalized design); the delivered API and pages
-    never rely on id stability across renames.
+    ``id`` is opaque and unique per type. ``id=None`` is the client-side
+    marker meaning "to be assigned by the repository": the repository
+    ignores it on write, and on read the id is always populated.
 
-    ``id=None`` is the client-side marker meaning "to be assigned by the
-    repository": the repository ignores it on write, and on read the id is
-    always populated.
+    The in-memory reference implementation freezes ids at creation: a rename
+    never re-issues them. Other implementations may re-issue the id on
+    rename (for example, name-as-identity in a denormalized design); the
+    delivered API and pages never rely on id stability across renames.
     """
 
     id: str | None
@@ -59,9 +57,12 @@ class Brand:
 class Product:
     """An immutable catalog product snapshot.
 
-    ``frozen=True``: a ``Product`` is never mutated after creation. ``id`` is
-    owned by the repository (the client never supplies it); ``created_at`` is
-    naive UTC and defaults to "now" on the client-create path.
+    ``frozen=True``: a ``Product`` is never mutated after creation.
+
+    ``id`` is owned by the repository (the client never supplies it).
+
+    ``created_at`` is naive UTC and defaults to "now" on the client-create
+    path.
 
     ``category`` and ``brand`` hold entity references (:class:`Category` /
     :class:`Brand`) or ``None``. They are materialized at fetch time; a
@@ -225,9 +226,10 @@ class ProductQuery:
     ``price`` exactly equals ``price_min`` or ``price_max`` is matched.
 
     ``category`` and ``brand`` are filters by NAME (never by id): exact,
-    case-sensitive, no trimming. ``None`` means "no filter". There is
-    deliberately NO filter for "products without a category / brand": a
-    documented gap of the query contract.
+    case-sensitive, no trimming. ``None`` means "no filter".
+
+    There is deliberately NO filter for "products without a category /
+    brand": a documented gap of the query contract.
 
     Contract invariant: ties on ``sort_field`` are ALWAYS broken by ``id``
     ascending, in every backend, so both backends order ties identically.
@@ -261,6 +263,10 @@ class ProductPage:
 class CategoryStats:
     """Aggregate figures for one category.
 
+    ``count`` is the number of products in the category.
+
+    ``average_price`` is the mean price of the products in the category.
+
     ``total_value`` is the sum of ``price * stock`` across the category.
     Money floats are rounded to 2 decimals in the repository layer.
     """
@@ -282,9 +288,9 @@ class CatalogStats:
     ``average_price`` is the mean price over that same population of
     products.
 
-    ``by_category`` contains only products that HAVE a category: keys are the
-    current category NAMES, sorted by codepoint order. Products without a
-    category are excluded from ``by_category`` (they still count in
+    ``by_category`` contains only products that HAVE a category: keys are
+    the current category NAMES, sorted by codepoint order. Products without
+    a category are excluded from ``by_category`` (they still count in
     ``total`` / ``average_price`` / ``best_sellers``). ``best_sellers`` is
     the top 5 by ``units_sold`` descending, ties broken by ``id`` ascending.
     Money floats are rounded to 2 decimals in the repository layer.
