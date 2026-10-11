@@ -218,8 +218,7 @@ def main() -> None:
 
     count = args.count
     if count < MIN_COUNT:
-        print(f"NOTE: --count {count} is below the floor {MIN_COUNT}; seeding {MIN_COUNT}.")
-        count = MIN_COUNT
+        print(f"NOTE: --count {count} is below the floor {MIN_COUNT}; seeding {count} anyway.")
 
     if args.reset:
         _reset_database(uri, db_name)
