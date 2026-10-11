@@ -203,9 +203,16 @@ def _close_quietly(repo: MongoProductRepository) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Seed the MongoDB product catalog.")
-    parser.add_argument("--count", type=int, default=DEFAULT_COUNT)
     parser.add_argument(
-        "--reset", action="store_true", help="Drop the existing catalog database first."
+        "--count",
+        type=int,
+        default=DEFAULT_COUNT,
+        help="Number of products to generate (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Drop the existing catalog database first (default: %(default)s).",
     )
     args = parser.parse_args()
 
