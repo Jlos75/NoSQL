@@ -37,7 +37,8 @@ from mongo_repository import PRODUCT_COLLECTION_NAME, MongoProductRepository
 from repository import DEFAULT_MONGO_DB, DEFAULT_MONGO_URI
 
 DEFAULT_COUNT = 50000
-MIN_COUNT = 20000
+# Suggested minimum dataset size (informational only, not enforced).
+SUGGESTED_MIN_COUNT = 20000
 BATCH_SIZE = 500
 RNG_SEED = 42
 PING_TIMEOUT_MS = 2500
@@ -224,8 +225,11 @@ def main() -> None:
         raise SystemExit(1)
 
     count = args.count
-    if count < MIN_COUNT:
-        print(f"NOTE: --count {count} is below the floor {MIN_COUNT}; seeding {count} anyway.")
+    if count < SUGGESTED_MIN_COUNT:
+        print(
+            f"NOTE: --count {count} is below the suggested minimum "
+            f"{SUGGESTED_MIN_COUNT}; seeding {count} anyway."
+        )
 
     if args.reset:
         _reset_database(uri, db_name)
