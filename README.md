@@ -105,11 +105,9 @@ shell interprète les crochets) :
 pytest "tests/test_repository.py::test_get_product_missing[memory]"
 ```
 
-Chaque méthode des deux backends est journalisée au niveau `INFO` (nom de la
-méthode et arguments). Avec `--log-level INFO`, les lignes journalisées
-apparaissent dans le rapport des tests qui échouent ; avec
-`--log-cli-level INFO` en plus, elles s'affichent aussi en direct pendant
-l'exécution :
+Avec `--log-level INFO`, les lignes journalisées apparaissent dans le rapport
+des tests qui échouent ; avec `--log-cli-level INFO` en plus, elles
+s'affichent aussi en direct pendant l'exécution :
 
 ```bash
 pytest --log-level INFO --log-cli-level INFO
