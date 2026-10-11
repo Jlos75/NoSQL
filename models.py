@@ -65,9 +65,11 @@ class Product:
     path.
 
     ``category`` and ``brand`` hold entity references (:class:`Category` /
-    :class:`Brand`) or ``None``. They are materialized at fetch time; a
-    rename after the fetch does NOT update this instance; refetch for the
-    truth.
+    :class:`Brand`) or ``None``: categories and brands are independently
+    deletable, and deleting one DETACHES every product that referenced it
+    (the product survives; its reference becomes ``None``). They are
+    materialized at fetch time; a rename after the fetch does NOT update
+    this instance; refetch for the truth.
     """
 
     id: str
