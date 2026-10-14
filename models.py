@@ -8,13 +8,13 @@ no database access, no querying, and no pagination arithmetic.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any, Literal
 
 
 def now_utc() -> datetime:
     """Return the current time as a naive UTC ``datetime`` (second precision)."""
-    return datetime.now(UTC).replace(tzinfo=None, microsecond=0)
+    return datetime.now(timezone.utc).replace(tzinfo=None, microsecond=0)
 
 
 @dataclass(frozen=True)

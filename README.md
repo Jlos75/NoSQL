@@ -5,7 +5,7 @@ Une interface web et une API de catalogue produits.
 Pré-requis :
 
 - Un système Linux ;
-- Python 3.11 minimum ;
+- Python 3.10 minimum ;
 - Connaissances de base du langage Python.
 
 

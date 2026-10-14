@@ -10,7 +10,7 @@ from __future__ import annotations
 import atexit
 import math
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from functools import wraps
 
 from flask import Flask, g, jsonify, request, send_from_directory
@@ -47,7 +47,7 @@ def _backend_name(repo: ProductRepository) -> str:
 
 def _to_iso_utc(dt: datetime) -> str:
     """Serialize a naive-UTC datetime as ISO 8601 with a +00:00 offset."""
-    return dt.replace(tzinfo=UTC).isoformat()
+    return dt.replace(tzinfo=timezone.utc).isoformat()
 
 
 def _entity_to_dict(entity: Category | Brand) -> dict | None:
