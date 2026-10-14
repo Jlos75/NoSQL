@@ -97,12 +97,20 @@ Ces tests automatiques testent le backend `memory` aussi bien que le backend
 `mongo`. Tant que vous n'aurez pas implémenté correctement le backend `mongo`,
 ils échoueront.
 
+Alternativement:
+
+```bash
+# -x : s'arrete au premier test qui échoue
+# -vv : sortie plus détaillée
+pytest -xvv
+```
+
 Pour ne lancer qu'un seul test, utiliser son identifiant complet tel que
 donné par `pytest -v` (les guillemets sont obligatoires : sans eux, le
 shell interprète les crochets) :
 
 ```bash
-pytest "tests/test_repository.py::test_get_product_missing[memory]"
+pytest -vv "tests/test_repository.py::test_get_product_missing[memory]"
 ```
 
 Avec `--log-level INFO`, les lignes journalisées apparaissent dans le rapport
@@ -110,7 +118,7 @@ des tests qui échouent ; avec `--log-cli-level INFO` en plus, elles
 s'affichent aussi en direct pendant l'exécution :
 
 ```bash
-pytest --log-level INFO --log-cli-level INFO
+pytest -xvv --log-level INFO --log-cli-level INFO
 ```
 
 
