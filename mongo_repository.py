@@ -79,11 +79,12 @@ class MongoProductRepository(ProductRepository):
     def _document(self, product: Product) -> dict:
         category = self._entity(self._categories, product.category, Category)
         brand = self._entity(self._brands, product.brand, Brand)
+
         return {
             "name": product.name,
             "description": product.description,
-            "category": {"id": category.id, "name": category.name} if category else None,
-            "brand": {"id": brand.id, "name": brand.name} if brand else None,
+            "category": category.name if category else None,
+            "brand": brand.name if brand else None,
             "price": product.price,
             "stock": product.stock,
             "rating": product.rating,
@@ -92,15 +93,19 @@ class MongoProductRepository(ProductRepository):
         }
             
     @staticmethod
-    def _product(doc: dict) -> Product:
-        category = doc.get("category")
-        brand = doc.get("brand")
+    def _product(self, doc: dict) -> Product:
+        category_name = doc.get("category")
+        brand_name = doc.get("brand")
+
+        category = self._categories.find_one({"name": category_name}) if category_name else None
+        brand = self._brands.find_one({"name": brand_name}) if brand_name else None
+
         return Product(
             id=doc["_id"],
             name=doc["name"],
             description=doc["description"],
-            category=Category(**category) if category else None,
-            brand=Brand(**brand) if brand else None,
+            category=Category(id=category["_id"], name=category["name"]) if category else None,
+            brand=Brand(id=brand["_id"], name=brand["name"]) if brand else None,
             price=doc["price"],
             stock=doc["stock"],
             rating=doc["rating"],
@@ -192,9 +197,9 @@ class MongoProductRepository(ProductRepository):
         LOGGER.info("list_products(%r)", query)
         filters = {}
         if query.category is not None:
-            filters["category.name"] = query.category
+            filters["category"] = query.category
         if query.brand is not None:
-            filters["brand.name"] = query.brand
+            filters["brand"] = query.brand
         price = {}
         if query.price_min is not None:
             price["$gte"] = query.price_min
@@ -255,7 +260,7 @@ class MongoProductRepository(ProductRepository):
         groups = self._products.aggregate([
             {"$match": {"category": {"$ne": None}}},
             {"$group": {
-                "_id": "$category.name", "count": {"$sum": 1},
+                "_id": "$category", "count": {"$sum": 1},
                 "average": {"$avg": "$price"},
                 "value": {"$sum": {"$multiply": ["$price", "$stock"]}},
             }},
@@ -334,7 +339,7 @@ class MongoProductRepository(ProductRepository):
         )
 
         self._products.update_many(
-            {"category.id": category_id},
+            {"category": category.name},
             {"$set": {"category.name": new_name}}
         )
         return Category(id=category_id, name=new_name)
@@ -411,9 +416,9 @@ class MongoProductRepository(ProductRepository):
             {"_id": brand_id},
             {"$set": {"name": new_name}}
         )
-        self._products.update_many(
+        result = self._products.update_many(
             {"brand.id": brand_id},
-            {"$set": {"brand.name": new_name}}
+            {"$set": {"brand.name": None}}
         )
         return Brand(id=brand_id, name=new_name)
 
