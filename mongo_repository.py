@@ -18,10 +18,15 @@ import logging
 ## ajout
 import re
 import uuid
-from pymongo import ASCENDING, DESCENDING, MongoClient, ReturnDocument
 
-from models import Brand, CatalogStats, Category, CategoryStats, Product, ProductPage, ProductQuery
+## ajout
+import re
+import uuid
+from pymongo import ASCENDING, DESCENDING, ASCENDING, DESCENDING, MongoClient, ReturnDocument, ReturnDocument
+
+from models import Brand, CatalogStats, Category, CategoryStats, CategoryStats, Product, ProductPage, ProductQuery
 from repository import ProductRepository
+from repository import EntityNotFoundError
 from repository import EntityNotFoundError
 
 LOGGER = logging.getLogger(__name__)
@@ -58,11 +63,15 @@ class MongoProductRepository(ProductRepository):
         self._products = self._db[PRODUCT_COLLECTION_NAME]
         self._categories = self._db["category"]
         self._brands = self._db["brand"]
+        self._products = self._db[PRODUCT_COLLECTION_NAME]
+        self._categories = self._db["category"]
+        self._brands = self._db["brand"]
 
     def close(self) -> None:
         """Release backend resources. Called once at shutdown."""
         LOGGER.info("close()")
         self._client.close() # fait
+        #self._client.close() # fait
         #raise NotImplementedError("TODO: implement 'close' using MongoDB")
 
     def _entity(self, collection, value, entity_type):
@@ -113,6 +122,49 @@ class MongoProductRepository(ProductRepository):
             created_at=doc["created_at"],
         )
         
+    def _entity(self, collection, value, entity_type):
+        if value is None:
+            return None
+        doc = collection.find_one_and_update(
+            {"name": value.name},
+            {"$setOnInsert": {"_id": uuid.uuid4().hex, "name": value.name}},
+            upsert=True,
+            return_document=ReturnDocument.AFTER,
+        )
+        return entity_type(id=doc["_id"], name=doc["name"])
+
+    def _document(self, product: Product) -> dict:
+        category = self._entity(self._categories, product.category, Category)
+        brand = self._entity(self._brands, product.brand, Brand)
+        return {
+            "name": product.name,
+            "description": product.description,
+            "category": {"id": category.id, "name": category.name} if category else None,
+            "brand": {"id": brand.id, "name": brand.name} if brand else None,
+            "price": product.price,
+            "stock": product.stock,
+            "rating": product.rating,
+            "units_sold": product.units_sold,
+            "created_at": product.created_at,
+        }
+            
+    @staticmethod
+    def _product(doc: dict) -> Product:
+        category = doc.get("category")
+        brand = doc.get("brand")
+        return Product(
+            id=doc["_id"],
+            name=doc["name"],
+            description=doc["description"],
+            category=Category(**category) if category else None,
+            brand=Brand(**brand) if brand else None,
+            price=doc["price"],
+            stock=doc["stock"],
+            rating=doc["rating"],
+            units_sold=doc["units_sold"],
+            created_at=doc["created_at"],
+        )
+        
     def create_product(self, product: Product) -> Product:
         """Create a single product.
 
@@ -121,7 +173,13 @@ class MongoProductRepository(ProductRepository):
         auto-created on first sight of its name. Returns the stored product.
         """
         LOGGER.info("create_product(%r, %s, %d)", product.name, product.price, product.stock)
-        #raise NotImplementedError("TODO: implement 'create_product' using MongoDB")
+        ##raise NotImplementedError("TODO: implement 'create_product' using MongoDB")
+        
+        doc = self._document(product)
+        doc["_id"] = uuid.uuid4().hex
+        self._products.insert_one(doc)
+        return self._product(doc)
+        
         
         doc = self._document(product)
         doc["_id"] = uuid.uuid4().hex
@@ -150,13 +208,29 @@ class MongoProductRepository(ProductRepository):
         return [self._product(doc) for doc in docs]
             
             
+        if not products:
+            return []
+        docs = []
+        for product in products:
+            doc = self._document(product)
+            doc["_id"] = uuid.uuid4().hex
+            docs.append(doc)
+        self._products.insert_many(docs)
+        return [self._product(doc) for doc in docs]
+            
+            
     def get_product(self, product_id: str) -> Product | None:
         """Return the product with ``product_id`` (entities materialized at fetch time).
 
         Never raises: an unknown or malformed id yields ``None``.
         """
         LOGGER.info("get_product(%r)", product_id)
-        #raise NotImplementedError("TODO: implement 'get_product' using MongoDB")
+        ##raise NotImplementedError("TODO: implement 'get_product' using MongoDB")
+        # Vérifier que l'identifiant MongoDB est valide
+        if not isinstance(product_id, str):
+            return None
+        doc = self._products.find_one({"_id": product_id})
+        return self._product(doc) if doc else None
         # Vérifier que l'identifiant MongoDB est valide
         if not isinstance(product_id, str):
             return None
@@ -175,6 +249,16 @@ class MongoProductRepository(ProductRepository):
         product. Returns the updated product.
         """
         LOGGER.info("update_product(%r, %r)", product.id, product.name)
+        if not isinstance(product.id, str) or not self._products.find_one({"_id": product.id}, {"_id": 1}):
+            raise EntityNotFoundError(f"product id {product.id!r} not found")
+        fields = self._document(product)
+        fields.pop("created_at")
+        doc = self._products.find_one_and_update(
+            {"_id": product.id}, {"$set": fields}, return_document=ReturnDocument.AFTER
+        )
+        if doc is None:
+            raise EntityNotFoundError(f"product id {product.id!r} not found")
+        return self._product(doc)        
         if not isinstance(product.id, str) or not self._products.find_one({"_id": product.id}, {"_id": 1}):
             raise EntityNotFoundError(f"product id {product.id!r} not found")
         fields = self._document(product)
@@ -237,6 +321,9 @@ class MongoProductRepository(ProductRepository):
         An unknown or malformed id raises ``repository.EntityNotFoundError``.
         """
         LOGGER.info("delete_product(%r)", product_id)
+        if not isinstance(product_id, str) or self._products.delete_one({"_id": product_id}).deleted_count == 0:
+            raise EntityNotFoundError(f"product id {product_id!r} not found")
+        
         if not isinstance(product_id, str) or self._products.delete_one({"_id": product_id}).deleted_count == 0:
             raise EntityNotFoundError(f"product id {product_id!r} not found")
         
@@ -309,6 +396,15 @@ class MongoProductRepository(ProductRepository):
             return None
 
         return Category(id=doc["_id"], name=doc["name"])
+        if not isinstance(category_id, str):
+            return None
+
+        doc = self._categories.find_one({"_id": category_id})
+
+        if doc is None:
+            return None
+
+        return Category(id=doc["_id"], name=doc["name"])
 
     def rename_category(self, category_id: str, new_name: str) -> Category:
         """Rename the category; ``new_name`` is trimmed.
@@ -369,8 +465,26 @@ class MongoProductRepository(ProductRepository):
 
         return result.modified_count
 
+        category = self.get_category(category_id)
+
+        if category is None:
+            raise EntityNotFoundError(f"category id {category_id!r} not found")
+
+        result = self._products.update_many(
+            {"category.id": category_id},
+            {"$set": {"category": None}}
+        )
+
+        self._categories.delete_one({"_id": category_id})
+
+        return result.modified_count
+
     def list_brands(self) -> list[Brand]:
         LOGGER.info("list_brands()")
+        return [
+            Brand(id=doc["_id"], name=doc["name"])
+            for doc in self._brands.find().sort("name", ASCENDING)
+        ]
         return [
             Brand(id=doc["_id"], name=doc["name"])
             for doc in self._brands.find().sort("name", ASCENDING)
@@ -383,6 +497,16 @@ class MongoProductRepository(ProductRepository):
         created implicitly when products are saved with an unknown name.
         """
         LOGGER.info("get_brand(%r)", brand_id)
+
+        if not isinstance(brand_id, str):
+            return None
+
+        doc = self._brands.find_one({"_id": brand_id})
+
+        if doc is None:
+            return None
+
+        return Brand(id=doc["_id"], name=doc["name"])
 
         if not isinstance(brand_id, str):
             return None
@@ -432,6 +556,15 @@ class MongoProductRepository(ProductRepository):
         brand.
         """
         LOGGER.info("delete_brand(%r)", brand_id)
+        brand = self.get_brand(brand_id)
+        if brand is None:
+            raise EntityNotFoundError(f"brand id {brand_id!r} not found")
+        result = self._products.update_many(
+            {"brand.id": brand_id},
+            {"$set": {"brand": None}}
+        )
+        self._brands.delete_one({"_id": brand_id})
+        return result.modified_count
         brand = self.get_brand(brand_id)
         if brand is None:
             raise EntityNotFoundError(f"brand id {brand_id!r} not found")
